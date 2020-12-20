@@ -14,11 +14,12 @@ type parameters struct {
 	DatasetPath string `yaml:"datasetPath"`
 }
 
-// Parameters of the CN2 algorithm
+// Parameters of the CN2 algorithm.
+// The values are obtained from config-file or cli parameters
 var Parameters parameters
 
 func init() {
-	// try to read config file. nothing wrong appens if it does not exists
+	// try to read config file. Nothing wrong appens if it does not exists
 	if config, err := ioutil.ReadFile("cn2.config.yml"); err == nil {
 		// try to unmarshal yaml file and exit if some error is found
 		if err = yaml.Unmarshal(config, &Parameters); err != nil {
@@ -35,8 +36,10 @@ func init() {
 	starSetSize := flag.Int("s", Parameters.StarSetSize, "TODO usage description")
 	datasetPath := flag.String("d", Parameters.DatasetPath, "TODO usage description")
 
+	// parse input arguments
 	flag.Parse()
 
+	// set parameters values
 	Parameters.Threshold = *threshold
 	Parameters.StarSetSize = *starSetSize
 	Parameters.DatasetPath = *datasetPath
