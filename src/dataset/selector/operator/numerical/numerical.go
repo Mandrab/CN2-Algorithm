@@ -16,7 +16,7 @@ var Operators map[OperatorKey]func(v1, v2 float64) bool = map[OperatorKey]func(v
 	"Different": func(v1, v2 float64) bool {
 		return math.Abs(v1-v2) > delta
 	},
-	"LesseEqual": func(v1, v2 float64) bool {
+	"LesserEqual": func(v1, v2 float64) bool {
 		return v1-v2 < delta
 	},
 	"Greater": func(v1, v2 float64) bool {
