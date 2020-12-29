@@ -5,24 +5,15 @@ import (
 	"github.com/Mandrab/CN2-Algorithm/src/dataset/selector/operator/numerical"
 )
 
-type selector interface{}
-
-// Cathegorical selector
-type Cathegorical struct {
-	Attribute string
-	Cathegory string
-	operator  cathegorical.OperatorKey
-}
-
-// Numerical selector
-type Numerical struct {
-	Attribute string
-	Value     int
-	Operator  numerical.OperatorKey
+// Selector represents a way to say if a data/attribute
+// fulfill (or not) a condition.
+type Selector interface {
+	Attribute() string
+	Fulfill(interface{}) (bool, error)
 }
 
 // Cathegoricals define possible selectors for the cathegory
-func Cathegoricals(attribute, cathegory string) (selectors []Cathegorical) {
+func Cathegoricals(attribute, cathegory string) (selectors []Selector) {
 	for key := range cathegorical.Operators {
 		selectors = append(selectors, Cathegorical{attribute, cathegory, key})
 	}
@@ -30,7 +21,7 @@ func Cathegoricals(attribute, cathegory string) (selectors []Cathegorical) {
 }
 
 // Numericals define possible selectors for the value
-func Numericals(attribute string, value int) (selectors []Numerical) {
+func Numericals(attribute string, value float64) (selectors []Selector) {
 	for key := range numerical.Operators {
 		selectors = append(selectors, Numerical{attribute, value, key})
 	}
