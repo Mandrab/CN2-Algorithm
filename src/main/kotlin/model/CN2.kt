@@ -1,6 +1,8 @@
 package model
 
 import krangl.DataFrame
+import model.Dataframes.bestComplex
+import model.Dataframes.cover
 import model.selector.Selector
 import model.selector.categorical.Categorical.Categorical
 import model.selector.numerical.Numerical.Numerical
@@ -19,14 +21,20 @@ object CN2 {
 
         val rules = emptyList<Rule>()
 
-        val bestComplex = TODO(dataFrame, selectors)
-        while (bestComplex != null && dataFrame.nrow > 0) {
-            // ce := coveredExamples()
-            // ds = ds.Filter(not in ce)
-            // c := prevailingClass(ce)
-            // rules = append(rules, Rule(bc,c))
+        // tail recursive
+        tailrec fun findRule(dataFrame: DataFrame, selectors: Set<Selector>, rulesSoFar: Set<Rule>): Set<Rule> {
+            val bestComplex = bestComplex(dataFrame, selectors) ?: return emptySet()
+
+            // separate covered and non-covered examples
+            val coveredExamples = dataFrame.filterByRow { bestComplex.cover(it) }
+            val dataFrame = dataFrame.filterByRow { !bestComplex.cover(it) }
+
+            // find prevailing class
+            val prevailingClass = coveredExamples.get(0).values().groupBy { it }.mapValues { it.count() }.toList()
+                .sortedBy { it.second }.first().first
+            return findRule(dataFrame, selectors, rulesSoFar + Rule(bestComplex, prevailingClass))
         }
-        return rules
+        return findRule(dataFrame, selectors, emptySet())
     }
 
     private fun findSelectors(dataFrame: DataFrame): Set<Selector> = dataFrame.cols.drop(1)
