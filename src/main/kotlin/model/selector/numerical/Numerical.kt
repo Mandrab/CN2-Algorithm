@@ -8,8 +8,8 @@ class Numerical(
     val operator: Operators
 ): Selector {
 
-    override fun test(element: Any): Boolean = (element is Int || element is Float || element is Double)
-            && operator.test(this, value)
+    override fun test(element: Any?): Boolean = element != null
+            && (element is Int || element is Float || element is Double) && operator.test(this, value)
 
     override fun toString(): String = "$attribute " + when(operator) {
         Operators.Equal -> "=="
@@ -18,7 +18,7 @@ class Numerical(
         Operators.LesserEqual -> "<="
     } + " $value"
 
-    object Numerical {
+    companion object {
 
         fun get(attribute: String, value: Double): Set<model.selector.numerical.Numerical> =
             Operators.values().map { Numerical(attribute, value, it) }.toSet()

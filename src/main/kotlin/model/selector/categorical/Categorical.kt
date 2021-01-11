@@ -8,14 +8,14 @@ class Categorical(
     val operator: Operators
 ): Selector {
 
-    override fun test(element: Any): Boolean = element is String && operator.test(this, value)
+    override fun test(element: Any?): Boolean = element != null && element is String && operator.test(this, value)
 
     override fun toString(): String = "$attribute " + when(operator) {
         Operators.Equal -> "=="
         Operators.Different -> "!="
     } + " $value"
 
-    object Categorical {
+    companion object {
 
         fun get(attribute: String, value: String): Set<model.selector.categorical.Categorical> =
             Operators.values().map { Categorical(attribute, value, it) }.toSet()

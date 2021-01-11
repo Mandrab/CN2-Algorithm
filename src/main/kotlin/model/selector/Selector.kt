@@ -4,5 +4,5 @@ interface Selector {
 
     val attribute: String
 
-    fun test(element: Any): Boolean
+    fun test(element: Any?): Boolean
 }
