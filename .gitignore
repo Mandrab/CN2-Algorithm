@@ -1,1 +1,4 @@
-/cn2.config.yml
+.gradle
+.idea
+build
+cn2.config.yml
