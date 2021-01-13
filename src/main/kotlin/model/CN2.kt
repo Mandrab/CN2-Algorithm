@@ -1,10 +1,10 @@
 package model
 
 import krangl.DataFrame
-import model.Dataframes.bestComplex
-import model.Dataframes.evaluate
 import model.Dataframes.produceStarSet
 import model.complex.Complex
+import model.complex.Complexes.bestComplex
+import model.complex.Complexes.evaluate
 import model.selector.Selectors.findSelectors
 
 object CN2 {
