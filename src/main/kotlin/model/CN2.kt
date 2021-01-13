@@ -4,9 +4,8 @@ import krangl.DataFrame
 import model.Dataframes.bestComplex
 import model.Dataframes.evaluate
 import model.Dataframes.produceStarSet
-import model.selector.Selector
-import model.selector.categorical.Categorical
-import model.selector.numerical.Numerical
+import model.complex.Complex
+import model.selector.Selectors.findSelectors
 
 object CN2 {
 
@@ -41,12 +40,4 @@ object CN2 {
         }
         return findRule(dataFrame, starSet, emptySet())
     }
-
-    private fun findSelectors(dataFrame: DataFrame): Set<Selector> = dataFrame.cols.drop(1)
-        .flatMap { column -> column.values().distinct().flatMap { value -> when(value) {
-            is String -> Categorical.get(column.name, value)
-            is Int -> Numerical.get(column.name, value.toDouble())
-            else -> Numerical.get(column.name, value as Double)
-        } } }.toSet()
-
 }
