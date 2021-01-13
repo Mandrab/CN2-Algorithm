@@ -1,3 +1,3 @@
 package model
 
-class Rule(complex: Complex, resultingClass: String)
+class Rule(complex: Complex, resultingClass: Any)
