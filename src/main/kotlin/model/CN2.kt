@@ -2,10 +2,11 @@ package model
 
 import krangl.DataFrame
 import model.Dataframes.bestComplex
-import model.Dataframes.cover
+import model.Dataframes.evaluate
+import model.Dataframes.produceStarSet
 import model.selector.Selector
-import model.selector.categorical.Categorical.Categorical
-import model.selector.numerical.Numerical.Numerical
+import model.selector.categorical.Categorical
+import model.selector.numerical.Numerical
 
 object CN2 {
 
@@ -13,28 +14,32 @@ object CN2 {
      * Tries to find rules for classify the dataset.
      * The output is in the form of a decision-list
      */
-    fun run(threshold: Int, starsetSize: Int, dataFrame: DataFrame): List<Rule> {
+    fun run(threshold: Int, starSetSize: Int, dataFrame: DataFrame): Set<Rule> {
         // TODO implementation of CN2 induction algorithm
 
+        // dataset's attributes selectors
         val selectors = findSelectors(dataFrame)
         print(selectors.joinToString(separator = "\n"))
 
-        val rules = emptyList<Rule>()
+        val starSet = produceStarSet(dataFrame, selectors, starSetSize)
 
-        // tail recursive
-        tailrec fun findRule(dataFrame: DataFrame, selectors: Set<Selector>, rulesSoFar: Set<Rule>): Set<Rule> {
-            val bestComplex = bestComplex(dataFrame, selectors) ?: return emptySet()
+        // tail recursive function to find rules
+        tailrec fun findRule(data: DataFrame, starSet: Set<Complex>, rulesSoFar: Set<Rule>): Set<Rule> {
+            // search for the best complex. If no complex is found return the rules founded so far
+            val bestComplex = bestComplex(starSet, starSetSize, selectors) { evaluate(data, it) } ?: return rulesSoFar
 
             // separate covered and non-covered examples
-            val coveredExamples = dataFrame.filterByRow { bestComplex.cover(it) }
-            val dataFrame = dataFrame.filterByRow { !bestComplex.cover(it) }
+            val coveredExamples = data.filterByRow { bestComplex.cover(it) }
+            val data = data.filterByRow { !bestComplex.cover(it) }
 
-            // find prevailing class
-            val prevailingClass = coveredExamples.get(0).values().groupBy { it }.mapValues { it.count() }.toList()
-                .sortedBy { it.second }.first().first
-            return findRule(dataFrame, selectors, rulesSoFar + Rule(bestComplex, prevailingClass))
+            // find prevailing class in covered examples
+            val prevailingClass = coveredExamples[0].values().groupBy { it }.mapValues { it.value.count() }.toList()
+                .minByOrNull { it.second }!!.first!!
+
+            // search recursively for other rules
+            return findRule(data, starSet, rulesSoFar + Rule(bestComplex, prevailingClass))
         }
-        return findRule(dataFrame, selectors, emptySet())
+        return findRule(dataFrame, starSet, emptySet())
     }
 
     private fun findSelectors(dataFrame: DataFrame): Set<Selector> = dataFrame.cols.drop(1)
