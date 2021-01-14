@@ -17,8 +17,7 @@ class Complex(
      * @param row to which check covering
      * @return true if the complex cover the row
      */
-    fun cover(row: DataFrameRow) = row.entries.all { (attribute, value) ->
-        selectors.filter { it.attribute == attribute }.all { it.test(value) } }
+    fun cover(row: DataFrameRow) = selectors.all { selector -> selector.test(row[selector.attribute]) }
 
     /**
      * Specialize a complex with the given selector. Do not check for coherence
