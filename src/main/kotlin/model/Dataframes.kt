@@ -16,5 +16,5 @@ object Dataframes {
      * @return set of the best complexes (selectors) that cover the dataframe
      */
     fun produceStarSet(dataframe: DataFrame, selectors: Set<Selector>, starSetSize: Int): Set<Complex> =
-        selectors.map { Complex(it) }.sortedByDescending { evaluate(dataframe, it) }.take(starSetSize).toSet()
+        selectors.map { Complex(it) }.sortedBy(evaluate(dataframe)).take(starSetSize).toSet()
 }
