@@ -13,4 +13,6 @@ interface Selector {
      * @return true if the two selectors contradict each other
      */
     fun coherent(selector: Selector): Boolean
+
+    fun simplify(selector: Selector): Iterable<Selector>
 }
