@@ -2,6 +2,7 @@ package model.complex
 
 import krangl.DataFrame
 import model.selector.Selector
+import java.util.*
 import kotlin.math.log2
 
 object Complexes {
@@ -13,13 +14,13 @@ object Complexes {
      * @param complex to evaluate
      * @return a double value that represent the coverage. The lower it is, the better it is
      */
-    fun evaluate(dataframe: DataFrame, complex: Complex): Double {
-        val classCount = dataframe[0].values().distinct().count()   // the class is supposed to be in the first column
-        val coveredExamples = dataframe.rows.filter { complex.cover(it) }
-        val probabilityDistribution = coveredExamples.groupBy { it[dataframe.names[0]] }
-            .map { it.value.count().toDouble() / classCount }
-        return - probabilityDistribution.map { it * log2(it) }.sum()    // information-theoretic entropy
-    }
+    fun evaluate(data: DataFrame): (Complex) -> Double = { complex ->
+            val coveredRows = data.filterByRow { complex.cover(it) }.rows   // takes only rows covered by the complex
+            val coveredRowsCount = coveredRows.count().toDouble()           // count examples covered
+            - coveredRows.groupBy { it[data.names.first()] }                  // group by class (first column)
+                .map { it.value.count() / coveredRowsCount }                // to probability distribution
+                .map { it * log2(it) }.sum()                                // calculate entropy
+        }
 
     /**
      * Find the best complex specializing the star-set
@@ -30,26 +31,48 @@ object Complexes {
      * @param evaluate strategy for the complexes evaluation
      * @return best complex or null if there isn't any available complex
      */
-    fun bestComplex(starSet: Set<Complex>, starSetSize: Int, selectors: Set<Selector>, evaluate: (Complex) -> Double)
-            : Complex? {
+    fun bestComplex(starSetSize: Int, selectors: Set<Selector>, evaluate: (Complex) -> Double): Complex? {
 
+        var newStarSet = selectors.map { Complex(it) }.sortedBy(evaluate).take(starSetSize).asSequence() //starSet.asSequence()
         var bestComplex: Complex? = null
-        var bestScore = Double.NEGATIVE_INFINITY
+        var bestScore = Double.POSITIVE_INFINITY
 
-        while (starSet.isNotEmpty()) {
-            starSet.asSequence()                                                    // sequence improve performance
-                .flatMap { complex -> selectors.map { complex.specialize(it) } }    // new-star set
-                .filterNot { starSet.contains(it) }                                 // filter unspecialized complexes
-                .filterNot { it.isNull() }                                          // filter incoherent complexes
-                //.filter { TODO() } // statisticallySignificant... probably not needed
-                .sortedBy { evaluate(it) }                                          // order by best performance
-                .take(starSetSize)                                                  // take only needed element
+        // iterate till the star-set has items
+        do {
+            newStarSet = newStarSet
+                .flatMap { complex -> selectors.map { complex.specialize(it) } }// specialize all the complexes
+                .filterNot { it.isNull() }                                      // remove incoherent (null) complexes
+                //.map { it.simplify() }
+                .filterNot { newStarSet.contains(it) }                          // remove complexes present in star
+                .toSortedSet(Comparator.comparingDouble { evaluate(it) })       // order complexes by score
+                .take(starSetSize)                                              // take complexes to fill the star-set
+                .asSequence()
 
-            if (bestScore < evaluate(starSet.first())) {
-                bestComplex = starSet.first()
-                bestScore = evaluate(bestComplex)
+            newStarSet.firstOrNull()?.let {
+                val score = evaluate(it)
+                if (score < bestScore) {
+                    bestComplex = it
+                    bestScore = score
+                }
             }
-        }
+        } while (newStarSet.firstOrNull() != null)
+        /*while (newStarSet.firstOrNull() != null) {
+            newStarSet = newStarSet
+                .flatMap { complex -> selectors.map { complex.specialize(it) } }// specialize all the complexes
+                .filterNot { newStarSet.contains(it) }                          // remove all already present complexes
+                .filterNot { it.isNull() }                                      // remove incoherent (null) complexes
+                .toSortedSet(Comparator.comparingDouble { evaluate(it) })       // order complexes by score
+                .take(starSetSize)                                              // take complexes to fill the star-set
+                .asSequence()
+
+            newStarSet.firstOrNull()?.let {
+                val score = evaluate(it)
+                if (score < bestScore) {
+                    bestComplex = it
+                    bestScore = score
+                }
+            }
+        }*/
         return bestComplex
     }
 }
