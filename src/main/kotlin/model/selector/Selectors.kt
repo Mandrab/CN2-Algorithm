@@ -2,7 +2,9 @@ package model.selector
 
 import krangl.DataFrame
 import model.selector.categorical.Categorical
+import model.selector.categorical.Categoricals
 import model.selector.numerical.Numerical
+import model.selector.numerical.Numericals
 
 object Selectors {
 
@@ -20,4 +22,21 @@ object Selectors {
                 is String -> Categorical.get(column.name, value)        // correct format categorical values
                 else -> Categorical.get(column.name, value.toString())  // convert others to string and use as category
             } } }.toSet()
+
+    /**
+     * Simplify the set of selectors keeping only useful ones
+     *
+     * @param selectors the set to simplify
+     * @return the simplified set of selectors
+     */
+    fun simplify(vararg selectors: Selector): Iterable<Selector> {
+        assert(selectors.all { it.attribute == selectors.first().attribute })
+
+        return when {
+            selectors.all { it is Numerical } -> Numericals.simplify(*selectors.map { it as Numerical }.toTypedArray())
+            selectors.all { it is Categorical } ->
+                Categoricals.simplify(*selectors.map { it as Categorical }.toTypedArray())
+            else -> emptyList()
+        }
+    }
 }

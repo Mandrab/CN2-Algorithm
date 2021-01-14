@@ -12,15 +12,33 @@ object Categoricals {
      *
      * @return true if the two categorical are a coherent pair
      */
-    fun coherents(old: Categorical, new: Categorical) = old.attribute != new.attribute
+    /*fun coherents(old: Categorical, new: Categorical) = old.attribute != new.attribute
             || (old.operator == Operators.Different && new.operator == Operators.Different)
             || (old.operator != new.operator && old.value != new.value)
-            || (old.value == new.value)
+            || (old.value == new.value)*/
 
-    fun canSimplify(old: Categorical, new: Categorical) = old.attribute == new.attribute && coherents(old, new)
-            && ! (old.operator == new.operator && old.operator == Operators.Different && old.value != new.value)
+    /*fun canSimplify(old: Categorical, new: Categorical) = old.attribute == new.attribute && coherents(old, new)
+            && ! (old.operator == new.operator && old.operator == Operators.Different && old.value != new.value)*/
 
-    fun simplify(old: Categorical, new: Categorical): Iterable<Categorical> {
+    /**
+     * Simplify the set of selectors keeping only useful ones
+     *
+     * @param selectors the set to simplify
+     * @return the simplified set of selectors
+     */
+    fun simplify(vararg selectors: Categorical): Iterable<Categorical> {
+        assert(selectors.all { it.attribute == selectors.first().attribute })
+
+        // equal selector makes all the others useless
+        selectors.firstOrNull { it.operator == Operators.Equal } ?.let {
+            return listOf(it)
+        }
+
+        // return distinct 'different' selectors
+        return selectors.distinct()
+    }
+
+    /*fun simplify(old: Categorical, new: Categorical): Iterable<Categorical> {
         assert(coherents(old, new))
 
         return when {
@@ -30,5 +48,5 @@ object Categoricals {
             new.operator == Operators.Different -> listOf(old, new) // two 'different'
             else -> listOf(new)                                 // the two are coherent so return the second
         }
-    }
+    }*/
 }
