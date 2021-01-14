@@ -2,11 +2,15 @@ package model.selector.categorical
 
 import model.selector.Selector
 
-class Categorical(
+data class Categorical(
     override val attribute: String,
     val value: String,
     val operator: Operators
 ): Selector {
+    companion object {
+        fun get(attribute: String, value: String): Set<Categorical> =
+            Operators.values().map { Categorical(attribute, value, it) }.toSet()
+    }
 
     override fun test(element: Any?): Boolean = element != null && element is String && operator.test(this, value)
 
@@ -20,14 +24,11 @@ class Categorical(
                 ||  (selector.value != value)
             )
 
+    override fun simplify(selector: Selector): Iterable<Selector> = if (selector !is Categorical) emptyList()
+            else Categoricals.simplify(this, selector)
+
     override fun toString(): String = "$attribute " + when(operator) {
             Operators.Equal -> "=="
             Operators.Different -> "!="
         } + " $value"
-
-    companion object {
-
-        fun get(attribute: String, value: String): Set<model.selector.categorical.Categorical> =
-            Operators.values().map { Categorical(attribute, value, it) }.toSet()
-    }
 }
