@@ -2,6 +2,7 @@ package model.complex
 
 import krangl.DataFrameRow
 import model.selector.Selector
+import model.selector.Selectors
 
 class Complex(
     private val selectors: Set<Selector>
@@ -20,18 +21,48 @@ class Complex(
         selectors.filter { it.attribute == attribute }.all { it.test(value) } }
 
     /**
-     * Specialize a complex with the given selector
+     * Specialize a complex with the given selector. Do not check for coherence
      *
      * @param selector to use to specialize the complex
      * @return the specialized complex
      */
-    fun specialize(selector: Selector) = Complex(selectors + selector) // TODO check if sets are ordered
+    fun specialize(selector: Selector) = Complex(selectors + selector)
 
     /**
      * Check if the complex is coherent (i.e., does not have discordant selectors)
      *
-     * @return true if the complex is coherent
+     * @return true if the complex is not coherent
      */
-    fun isNull() = selectors.groupBy { it.attribute }.all {
+    fun isNull() = ! selectors.groupBy { it.attribute }.all {
         it.value.all { selector -> it.value.all { selector.coherent(it) } } }
+
+    /**
+     * Simplify a non-null complex. Does not check for nullability
+     *
+     * @return the simplified complex
+     */
+    fun simplify(): Complex = Complex(selectors.groupBy { it.attribute }
+        .flatMap { Selectors.simplify(*it.value.toTypedArray()) }.toSet())
+
+    /**
+     * Get human readable form of the data
+     *
+     * @return string representing the object
+     */
+    override fun toString(): String = "Complex:\n" + selectors.joinToString(prefix = "\t", postfix = "\n")
+
+    /**
+     * Check for object equality. It recursively check also for selectors equality
+     *
+     * @return true if the objects (complexes) are equal
+     */
+    override fun equals(other: Any?): Boolean = other is Complex
+            && other.selectors.size == selectors.size && other.selectors.all { selectors.contains(it) }
+
+    /**
+     * Generate hash code for the complex
+     *
+     * @return hash code of the complex
+     */
+    override fun hashCode(): Int = selectors.hashCode()
 }
