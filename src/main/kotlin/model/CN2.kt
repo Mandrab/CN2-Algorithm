@@ -1,8 +1,8 @@
 package model
 
+import controller.Logger.info
 import krangl.DataFrame
 import model.Dataframes.produceStarSet
-import model.complex.Complex
 import model.complex.Complexes.bestComplex
 import model.complex.Complexes.evaluate
 import model.selector.Selectors.findSelectors
@@ -14,30 +14,32 @@ object CN2 {
      * The output is in the form of a decision-list
      */
     fun run(threshold: Int, starSetSize: Int, dataFrame: DataFrame): Set<Rule> {
-        // TODO implementation of CN2 induction algorithm
 
         // dataset's attributes selectors
         val selectors = findSelectors(dataFrame)
-        print(selectors.joinToString(separator = "\n"))
 
+        // produce the initial star-set
         val starSet = produceStarSet(dataFrame, selectors, starSetSize)
 
         // tail recursive function to find rules
-        tailrec fun findRule(data: DataFrame, starSet: Set<Complex>, rulesSoFar: Set<Rule>): Set<Rule> {
+        tailrec fun findRule(data: DataFrame, rulesSoFar: Set<Rule>): Set<Rule> {
             // search for the best complex. If no complex is found return the rules founded so far
-            val bestComplex = bestComplex(starSet, starSetSize, selectors) { evaluate(data, it) } ?: return rulesSoFar
+            val bestComplex = bestComplex(starSetSize, selectors, evaluate(data)) ?: return rulesSoFar
+            info("Best complex: $bestComplex")
 
             // separate covered and non-covered examples
             val coveredExamples = data.filterByRow { bestComplex.cover(it) }
-            val data = data.filterByRow { !bestComplex.cover(it) }
+            val uncoveredData = data.filterByRow { ! bestComplex.cover(it) }
+            info("Covered examples: ${coveredExamples.nrow}")
+            info("Uncovered examples: ${uncoveredData.nrow}")
 
             // find prevailing class in covered examples
             val prevailingClass = coveredExamples[0].values().groupBy { it }.mapValues { it.value.count() }.toList()
                 .minByOrNull { it.second }!!.first!!
 
             // search recursively for other rules
-            return findRule(data, starSet, rulesSoFar + Rule(bestComplex, prevailingClass))
+            return findRule(uncoveredData, rulesSoFar + Rule(bestComplex, prevailingClass))
         }
-        return findRule(dataFrame, starSet, emptySet())
+        return findRule(dataFrame, emptySet())
     }
 }
