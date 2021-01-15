@@ -3,9 +3,9 @@ package model
 import controller.Logger.info
 import krangl.DataFrame
 import model.Dataframes.produceStarSet
-import model.complex.Complexes.bestComplex
-import model.complex.Complexes.evaluate
-import model.selector.Selectors.findSelectors
+import model.expression.complex.Complexes.bestComplex
+import model.expression.complex.Complexes.evaluate
+import model.expression.selector.Selectors.findSelectors
 
 object CN2 {
 
@@ -23,6 +23,9 @@ object CN2 {
 
         // tail recursive function to find rules
         tailrec fun findRule(data: DataFrame, rulesSoFar: Set<Rule>): Set<Rule> {
+            // return if the dataframe is null
+            if (data.nrow == 0) return rulesSoFar
+
             // search for the best complex. If no complex is found return the rules founded so far
             val bestComplex = bestComplex(starSetSize, selectors, evaluate(data)) ?: return rulesSoFar
             info("Best complex: $bestComplex")
