@@ -1,6 +1,6 @@
 package model
 
-import model.complex.Complex
+import model.expression.complex.Complex
 
 data class Rule(
     val complex: Complex,

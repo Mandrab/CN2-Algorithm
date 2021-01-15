@@ -1,4 +1,4 @@
-package model.expression.complex.selector.numerical
+package model.expression.selector.numerical
 
 object Numericals {
 

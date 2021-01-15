@@ -1,4 +1,4 @@
-package model.expression.complex.selector.categorical
+package model.expression.selector.categorical
 
 object Categoricals {
 

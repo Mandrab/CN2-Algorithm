@@ -1,6 +1,6 @@
-package model.expression.complex.selector.numerical
+package model.expression.selector.numerical
 
-import model.expression.complex.selector.Selector
+import model.expression.selector.Selector
 
 data class Numerical(
     override val attribute: String,

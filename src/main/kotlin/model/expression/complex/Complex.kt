@@ -1,8 +1,8 @@
-package model.complex
+package model.expression.complex
 
 import krangl.DataFrameRow
-import model.selector.Selector
-import model.selector.Selectors
+import model.expression.selector.Selector
+import model.expression.selector.Selectors
 
 open class Complex(
     val selectors: Set<Selector>

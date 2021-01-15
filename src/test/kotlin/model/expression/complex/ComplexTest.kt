@@ -1,9 +1,9 @@
-package model.complex
+package model.expression.complex
 
-import model.selector.categorical.Categorical
-import model.selector.categorical.Operators as COperators
-import model.selector.numerical.Numerical
-import model.selector.numerical.Operators as NOperators
+import model.expression.selector.categorical.Categorical
+import model.expression.selector.categorical.Operators as COperators
+import model.expression.selector.numerical.Numerical
+import model.expression.selector.numerical.Operators as NOperators
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

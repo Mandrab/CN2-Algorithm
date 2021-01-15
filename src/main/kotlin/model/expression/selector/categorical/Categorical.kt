@@ -1,6 +1,6 @@
-package model.expression.complex.selector.categorical
+package model.expression.selector.categorical
 
-import model.expression.complex.selector.Selector
+import model.expression.selector.Selector
 
 data class Categorical(
     override val attribute: String,

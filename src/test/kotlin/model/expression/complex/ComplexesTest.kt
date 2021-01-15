@@ -1,8 +1,8 @@
-package model.complex
+package model.expression.complex
 
 import krangl.dataFrameOf
-import model.selector.numerical.Numerical
-import model.selector.numerical.Operators
+import model.expression.selector.numerical.Numerical
+import model.expression.selector.numerical.Operators
 import org.junit.Test
 
 class ComplexesTest {

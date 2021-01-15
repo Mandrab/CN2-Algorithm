@@ -1,7 +1,8 @@
-package model.complex
+package model.expression.complex
 
+import com.google.common.collect.Comparators
 import krangl.DataFrame
-import model.selector.Selector
+import model.expression.selector.Selector
 import java.util.*
 import kotlin.Comparator
 import kotlin.math.abs
@@ -52,12 +53,12 @@ object Complexes {
         }
         val comparator: Comparator<EvaluatedComplex> = Comparator { f, s -> comparator.compare(f.score, s.score) }
 
-        var newStarSet = selectors.asSequence().map { EvaluatedComplex(it) }.sortedWith(comparator).take(starSetSize)
-        var bestComplex: EvaluatedComplex? = null
+        var starSet = selectors.stream().map{ EvaluatedComplex(it) }.collect(Comparators.least(starSetSize, comparator))
+        var bestComplex = starSet.firstOrNull()
 
         // iterate till the star-set has items
         do {
-            newStarSet.firstOrNull()?.let { challenger ->               // take the best complex of the set (if present)
+            starSet.firstOrNull()?.let { challenger ->                  // take the best complex of the set (if present)
                 bestComplex?.let {                                      // a temporary best complex already exists
                     if (comparator.compare(bestComplex, challenger) > 0)// if challenger better than actual
                         bestComplex = challenger                        // set challenger as best complex
@@ -66,18 +67,15 @@ object Complexes {
                 }
             }
 
-            val time = System.currentTimeMillis() // TODO
-            newStarSet = newStarSet
+            starSet = starSet
                 .flatMap { complex -> selectors.map { complex.specialize(it) } }// specialize all the complexes
-                .filterNot { it.isNull() }                                      // remove incoherent (null) complexes
+                .parallelStream() // TODO check if it effectively find the best
+                .filter { ! it.isNull() }                                       // remove incoherent (null) complexes
                 .map { it.simplify() }                                          // simplify the complex's selectors set
-                //.filterNot { newStarSet.contains(it) }                          // remove complexes present in star
-                .map { EvaluatedComplex(it) }                                     // evaluate the complex quality
-                .toSortedSet(comparator)                                 // order complexes by score
-                .take(starSetSize)                                              // take complexes to fill the star-set
-                .asSequence()
-            println(System.currentTimeMillis() - time) // TODO
-        } while (newStarSet.firstOrNull() != null)
+                .filter { ! starSet.contains(it) }                              // remove complexes present in star
+                .map { EvaluatedComplex(it) }                                   // evaluate the complex quality
+                .collect(Comparators.least(starSetSize, comparator))
+        } while (starSet.firstOrNull() != null)
         return bestComplex
     }
 
