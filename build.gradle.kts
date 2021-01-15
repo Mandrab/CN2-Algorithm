@@ -18,6 +18,7 @@ dependencies {
     implementation("com.github.ajalt.clikt:clikt:3.1.0")
     implementation("com.github.holgerbrandl:krangl:v0.14")
     implementation("org.apache.commons:commons-csv:1.8")
+    implementation("com.google.guava:guava:30.1-jre")
 }
 
 tasks.test {
