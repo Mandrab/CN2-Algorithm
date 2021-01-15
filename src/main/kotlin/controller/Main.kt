@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
+import controller.Logger.info
 import krangl.DataFrame
 import krangl.readCSV
 import model.CN2
@@ -30,7 +31,9 @@ private class Main : CliktCommand() {
         // read data-frame from disk
         val dataframe = DataFrame.readCSV(dataset)
 
+        val time = System.currentTimeMillis()
         val rules = CN2.run(threshold, starSetSize, dataframe)
+        info("Training time: ${System.currentTimeMillis() - time}")
         print(rules)
     }
 }

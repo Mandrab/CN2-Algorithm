@@ -3,7 +3,7 @@ package controller
 object Logger {
     var verbose = false
 
-    fun info(string: String) { if (verbose) println(string) }
+    fun info(string: Any) { if (verbose) println(string) }
 
-    fun error(string: String) = System.err.println(string)
+    fun error(string: Any) = System.err.println(string)
 }
