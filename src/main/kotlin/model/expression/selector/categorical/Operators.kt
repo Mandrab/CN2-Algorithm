@@ -1,4 +1,4 @@
-package model.selector.categorical
+package model.expression.complex.selector.categorical
 
 enum class Operators(val test: (selector: Categorical, value: String) -> Boolean) {
     Equal(test = { s, v -> s.value == v }),

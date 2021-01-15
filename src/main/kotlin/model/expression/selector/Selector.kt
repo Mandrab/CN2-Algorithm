@@ -1,4 +1,4 @@
-package model.selector
+package model.expression.complex.selector
 
 interface Selector {
 

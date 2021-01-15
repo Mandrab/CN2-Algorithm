@@ -1,10 +1,10 @@
-package model.selector
+package model.expression.complex.selector
 
 import krangl.DataFrame
-import model.selector.categorical.Categorical
-import model.selector.categorical.Categoricals
-import model.selector.numerical.Numerical
-import model.selector.numerical.Numericals
+import model.expression.complex.selector.categorical.Categorical
+import model.expression.complex.selector.categorical.Categoricals
+import model.expression.complex.selector.numerical.Numerical
+import model.expression.complex.selector.numerical.Numericals
 
 object Selectors {
 

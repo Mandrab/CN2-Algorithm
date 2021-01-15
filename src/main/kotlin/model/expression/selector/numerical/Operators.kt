@@ -1,4 +1,4 @@
-package model.selector.numerical
+package model.expression.complex.selector.numerical
 
 import kotlin.math.abs
 

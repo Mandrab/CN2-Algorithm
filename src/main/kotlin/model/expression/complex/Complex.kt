@@ -4,8 +4,8 @@ import krangl.DataFrameRow
 import model.selector.Selector
 import model.selector.Selectors
 
-class Complex(
-    private val selectors: Set<Selector>
+open class Complex(
+    val selectors: Set<Selector>
 ) {
     companion object {
         operator fun invoke(vararg selectors: Selector) = Complex(setOf(*selectors))
