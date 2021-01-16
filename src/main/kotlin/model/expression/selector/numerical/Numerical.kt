@@ -2,16 +2,35 @@ package model.expression.selector.numerical
 
 import model.expression.selector.Selector
 
+/**
+ * Represents a numerical selector
+ *
+ * @author Paolo Baldini
+ */
 data class Numerical(
     override val attribute: String,
     val value: Double,
-    val operator: Operators
+    val operator: Operator
 ): Selector {
     companion object {
+
+        /**
+         * Builder for construct all possible numerical selectors
+         *
+         * @param attribute of the value
+         * @param value instance of the attribute
+         * @return the possible selectors that use the two inputs
+         */
         fun get(attribute: String, value: Double): Set<Numerical> =
-            Operators.values().map { Numerical(attribute, value, it) }.toSet()
+            Operator.values().map { Numerical(attribute, value, it) }.toSet()
     }
 
+    /**
+     * Test an element to check if it is covered by the selector
+     *
+     * @param element to test
+     * @return true if the element is covered by the selector
+     */
     override fun test(element: Any?): Boolean = element != null && when (element) {
         is Int -> operator.test(this, element.toDouble())
         is Float -> operator.test(this, element.toDouble())
@@ -20,42 +39,44 @@ data class Numerical(
     }
 
     /**
-     * Check the selector contradict this one
+     * Check if the selector is coherent with this one
      *
-     * @param selector to which check  contradiction
-     * @return true if the two selectors contradict each other
+     * @param selector to which check contradiction
+     * @return true if the two selectors does not contradict each other
      */
     override fun coherent(selector: Selector) = selector is Numerical && selector.attribute == attribute
             && when(selector.operator) {
-                Operators.Equal -> when(operator) {
-                    Operators.Equal -> selector.value == value          // s1: == 5, s2: == 6 -> incoherent
-                    Operators.Different -> selector.value != value      // s1: == 5, s2: != 5 -> incoherent
-                    Operators.LesserEqual -> selector.value <= value    // s1: == 5, s2: <= 4 -> incoherent
+                Operator.Equal -> when(operator) {
+                    Operator.Equal -> selector.value == value          // s1: == 5, s2: == 6 -> incoherent
+                    Operator.Different -> selector.value != value      // s1: == 5, s2: != 5 -> incoherent
+                    Operator.LesserEqual -> selector.value <= value    // s1: == 5, s2: <= 4 -> incoherent
                     else -> selector.value > value                      // s1: == 5, s2: > 5 -> incoherent
                 }
-                Operators.Different -> when(operator) {
-                    Operators.Equal -> selector.value != value          // s1: != 5, s2: == 5 -> incoherent
+                Operator.Different -> when(operator) {
+                    Operator.Equal -> selector.value != value          // s1: != 5, s2: == 5 -> incoherent
                     else -> true                                        // s1: != 5, s2: <=, >, != x -> always coherent
                 }
-                Operators.LesserEqual -> when(operator) {
-                    Operators.Equal -> selector.value >= value          // s1: <= 5, s2: == 6 -> incoherent
-                    Operators.Greater -> selector.value > value         // s1: <= 5, s2: > 5 -> incoherent
+                Operator.LesserEqual -> when(operator) {
+                    Operator.Equal -> selector.value >= value          // s1: <= 5, s2: == 6 -> incoherent
+                    Operator.Greater -> selector.value > value         // s1: <= 5, s2: > 5 -> incoherent
                     else -> true                                        // s1: <= 5, s2: <=, != x -> always coherent
                 }
-                Operators.Greater -> when(operator) {
-                    Operators.Equal -> selector.value < value           // s1: > 5, s2: == 5 -> incoherent
-                    Operators.LesserEqual -> selector.value > value     // s1: > 5, s2: <= 5 -> incoherent
+                Operator.Greater -> when(operator) {
+                    Operator.Equal -> selector.value < value           // s1: > 5, s2: == 5 -> incoherent
+                    Operator.LesserEqual -> selector.value > value     // s1: > 5, s2: <= 5 -> incoherent
                     else -> true                                        // s1: > 5, s2: >, != x -> always coherent
                 }
             }
 
-    override fun simplify(selector: Selector): Iterable<Selector> = if (selector !is Numerical) emptyList()
-            else Numericals.simplify(this, selector)
-
+    /**
+     * Get human readable form of the data
+     *
+     * @return string representing the object
+     */
     override fun toString(): String = "$attribute " + when(operator) {
-        Operators.Equal -> "=="
-        Operators.Different -> "!="
-        Operators.Greater -> ">"
-        Operators.LesserEqual -> "<="
+        Operator.Equal -> "=="
+        Operator.Different -> "!="
+        Operator.Greater -> ">"
+        Operator.LesserEqual -> "<="
     } + " $value"
 }

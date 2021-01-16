@@ -4,10 +4,21 @@ import krangl.DataFrameRow
 import model.expression.selector.Selector
 import model.expression.selector.Selectors
 
+/**
+ * Represents a complex expression of attributes
+ *
+ * @author Paolo Baldini
+ */
 open class Complex(
     val selectors: Set<Selector>
 ) {
     companion object {
+        /**
+         * Construct a Complex from a set of selectors
+         *
+         * @param selectors set of selectors to use to build the complex
+         * @return the built complex
+         */
         operator fun invoke(vararg selectors: Selector) = Complex(setOf(*selectors))
     }
 
@@ -32,8 +43,7 @@ open class Complex(
      *
      * @return true if the complex is not coherent
      */
-    fun isNull() = ! selectors.groupBy { it.attribute }.all {
-        it.value.all { selector -> it.value.all { selector.coherent(it) } } }
+    fun isNull() = selectors.groupBy { it.attribute }.any { (_, ss) -> ss.any { s -> ss.any { ! s.coherent(it) } } }
 
     /**
      * Simplify a non-null complex. Does not check for nullability
@@ -48,11 +58,12 @@ open class Complex(
      *
      * @return string representing the object
      */
-    override fun toString(): String = "Complex:\n" + selectors.joinToString(prefix = "\t", postfix = "\n")
+    override fun toString(): String = "[${selectors.joinToString(prefix = "(", separator = "), (", postfix = ")")}]"
 
     /**
      * Check for object equality. It recursively check also for selectors equality
      *
+     * @param other element to check equality with
      * @return true if the objects (complexes) are equal
      */
     override fun equals(other: Any?): Boolean = other is Complex

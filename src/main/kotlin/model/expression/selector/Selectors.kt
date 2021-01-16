@@ -6,6 +6,11 @@ import model.expression.selector.categorical.Categoricals
 import model.expression.selector.numerical.Numerical
 import model.expression.selector.numerical.Numericals
 
+/**
+ * Utilities to work on Selector
+ *
+ * @author Paolo Baldini
+ */
 object Selectors {
 
     /**
