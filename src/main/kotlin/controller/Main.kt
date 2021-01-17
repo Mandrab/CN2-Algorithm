@@ -48,8 +48,8 @@ private class Main : CliktCommand() {
         info("Training time: ${System.currentTimeMillis() - time}")
 
         // save inferred rules to file and print them
-        if (export) outputFile.writeText(rules.toString())
-        if (!export || verbose) info(rules)
+        if (export) outputFile.writeText(rules.joinToString(separator = "\n"))
+        if (!export || verbose) info(rules.joinToString(separator = "\n"))
     }
 }
 
