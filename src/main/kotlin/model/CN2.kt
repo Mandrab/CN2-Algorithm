@@ -2,6 +2,7 @@ package model
 
 import controller.Logger.info
 import krangl.DataFrame
+import model.expression.complex.Complex
 import model.expression.complex.Complexes.bestComplex
 import model.expression.complex.Complexes.classDistribution
 import model.expression.complex.Complexes.entropy
@@ -31,9 +32,12 @@ object CN2 {
         // find attribute selectors for the given dataset
         val selectors = findSelectors(dataFrame)
 
-        // TODO
+        // get the probability distribution of classes in the dataframe
+        val classesDistribution = classDistribution(dataFrame)
+
+        // set up evaluation functions
         val entropyFunction = evaluate(entropy)
-        val significanceFunction = evaluate(significance(classDistribution(dataFrame)))
+        val significanceFunction = evaluate(significance(classesDistribution))
 
         /**
          * Tail recursive (does not fills the stack) function to find rules
@@ -64,6 +68,8 @@ object CN2 {
             // search recursively for other rules on the uncovered data
             return findRule(uncoveredData, rulesSoFar + Rule(bestComplex, prevailingClass))
         }
-        return findRule(dataFrame, emptySet())
+
+        // return rules list with default rule as last
+        return findRule(dataFrame, emptySet()) + Rule(Complex(), classesDistribution.maxByOrNull { it.value }!!.key)
     }
 }
