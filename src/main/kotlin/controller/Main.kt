@@ -34,7 +34,7 @@ private class Main : CliktCommand() {
     val export: Boolean by option("-e", "--export", help = ExportDescription).flag(default = false)
     val outputFile: File by option("-o", "--output", help = OutputFileDescription).file(mustBeWritable = true)
         .default(File(DefaultOutputFile))
-    val starSetSize: Int by option("-s", "--star-set-size", help = StarSetDescription).int().default(15)
+    val starSetSize: Int by option("-s", "--star-set-size", help = StarSetDescription).int().default(10)
     val threshold: Int by option("-t", "--threshold", help = ThresholdDescription).int().default(99)
     val verbosityLevel: Int by option("-v", "--verbose-level", help = VerboseDescription).int().default(1)
 
@@ -60,7 +60,8 @@ private class Main : CliktCommand() {
         if (!export || verbosityLevel == 0) info(rules.joinToString(separator = "\n"))
 
         // evaluate rules accuracy on the classification of the dataset
-        info("Score of the rules: ${Evaluator.evaluateAccuracy(test, rules)}")
+        info("Score of the rules in training set: ${Evaluator.evaluateAccuracy(training, rules)}")
+        info("Score of the rules in test set: ${Evaluator.evaluateAccuracy(test, rules)}")
     }
 }
 
