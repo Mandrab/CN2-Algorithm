@@ -9,8 +9,12 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import controller.Logger.info
 import krangl.DataFrame
+import krangl.DataFrameRow
+import krangl.dataFrameOf
 import krangl.readCSV
 import model.CN2
+import model.Evaluator
+import model.expression.complex.Complexes.classDistribution
 import java.io.File
 
 const val DatasetDescription = "Path to the dataset to use for the training"
@@ -42,14 +46,27 @@ private class Main : CliktCommand() {
         // read data-frame from disk
         val dataframe = DataFrame.readCSV(dataset)
 
+        // separate training and test sets homogeneously
+        val separatedDataset = dataframe.rows.groupBy { it[dataframe.names.first()] }.map {
+            val rows = it.value.shuffled()
+            Triple(it.key, rows.take(rows.size * 7 / 10), rows.takeLast(rows.size * 3 / 10))
+        }
+        val training = dataFrameOf(separatedDataset.fold(emptyList<DataFrameRow>()) { acc,tuple -> acc + tuple.second })
+        info("Training set size: ${training.nrow}. Probability distribution: ${classDistribution(training)}")
+        val test = dataFrameOf(separatedDataset.fold(emptyList<DataFrameRow>()) { acc, tuple -> acc + tuple.third })
+        info("Test set size: ${test.nrow}. Probability distribution: ${classDistribution(test)}")
+
         // run the training algorithm keeping track of the time required
         val time = System.currentTimeMillis()
-        val rules = CN2.run(threshold, starSetSize, dataframe)
+        val rules = CN2.run(threshold, starSetSize, training)
         info("Training time: ${System.currentTimeMillis() - time}")
 
         // save inferred rules to file and print them
         if (export) outputFile.writeText(rules.joinToString(separator = "\n"))
         if (!export || verbose) info(rules.joinToString(separator = "\n"))
+
+        // evaluate rules accuracy on the classification of the dataset
+        info("Score of the rules: ${Evaluator.evaluateAccuracy(test, rules)}")
     }
 }
 
