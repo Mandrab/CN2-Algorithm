@@ -2,6 +2,7 @@ package model.expression.selector.categorical
 
 import model.expression.selector.categorical.Categoricals.simplify
 import org.junit.Test
+import kotlin.test.assertFails
 
 class CategoricalsTest {
 
@@ -16,7 +17,7 @@ class CategoricalsTest {
     fun simplifyDifferentAttributes() {
         val a = Categorical("a", "x", Operator.Equal)
         val b = Categorical("b", "x", Operator.Equal)
-        assert(simplify(a, b) == listOf(a, b))
+        assertFails { simplify(a, b) }
     }
 
     @Test

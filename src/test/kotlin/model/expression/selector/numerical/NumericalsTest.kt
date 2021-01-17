@@ -1,6 +1,7 @@
 package model.expression.selector.numerical
 
 import org.junit.Test
+import kotlin.test.assertFails
 
 class NumericalsTest {
 
@@ -15,7 +16,7 @@ class NumericalsTest {
     fun simplifyDifferentAttributes() {
         val a = Numerical("a", 1.0, Operator.Equal)
         val b = Numerical("b", 1.0, Operator.Equal)
-        assert(Numericals.simplify(a, b) == listOf(a, b))
+        assertFails { Numericals.simplify(a, b) }
     }
 
     @Test
