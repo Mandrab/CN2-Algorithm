@@ -53,13 +53,13 @@ object CN2 {
             // search for the best complex. If no complex is found return the rules founded so far
             val bestComplex = bestComplex(selectors, starSetSize, threshold / 100.0, entropyFunction(data),
                 significanceFunction(data)) ?: return rulesSoFar
-            info("Best complex: $bestComplex")
+            info("Best complex: $bestComplex", 0)
 
             // separate covered and non-covered examples
             val coveredExamples = data.filterByRow { bestComplex.cover(it) }
             val uncoveredData = data.filterByRow { ! bestComplex.cover(it) }
-            info("Covered examples: ${coveredExamples.nrow}")
-            info("Uncovered examples: ${uncoveredData.nrow}")
+            info("Covered examples: ${coveredExamples.nrow}", 0)
+            info("Uncovered examples: ${uncoveredData.nrow}", 0)
 
             // find prevailing class in covered examples
             val prevailingClass = coveredExamples[0].values().groupBy { it }.mapValues { it.value.count() }.toList()
