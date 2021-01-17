@@ -3,7 +3,10 @@ package model
 import controller.Logger.info
 import krangl.DataFrame
 import model.expression.complex.Complexes.bestComplex
+import model.expression.complex.Complexes.classDistribution
+import model.expression.complex.Complexes.entropy
 import model.expression.complex.Complexes.evaluate
+import model.expression.complex.Complexes.significance
 import model.expression.selector.Selectors.findSelectors
 
 /**
@@ -28,6 +31,10 @@ object CN2 {
         // find attribute selectors for the given dataset
         val selectors = findSelectors(dataFrame)
 
+        // TODO
+        val entropyFunction = evaluate(entropy)
+        val significanceFunction = evaluate(significance(classDistribution(dataFrame)))
+
         /**
          * Tail recursive (does not fills the stack) function to find rules
          * It keeps iterate until the dataframe is empty or a blocking condition is found
@@ -40,7 +47,8 @@ object CN2 {
             if (data.nrow == 0) return rulesSoFar
 
             // search for the best complex. If no complex is found return the rules founded so far
-            val bestComplex = bestComplex(starSetSize, selectors, evaluate(data)) ?: return rulesSoFar
+            val bestComplex = bestComplex(selectors, starSetSize, threshold / 100.0, entropyFunction(data),
+                significanceFunction(data)) ?: return rulesSoFar
             info("Best complex: $bestComplex")
 
             // separate covered and non-covered examples
