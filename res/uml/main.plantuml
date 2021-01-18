@@ -1,0 +1,12 @@
+ 
+@startuml
+
+left to right direction
+
+model.CN2       :  run(threshold: Int, starSetSize: Int, dataFrame: DataFrame): Set<Rule>
+model.Evaluator :  evaluateAccuracy(data: DataFrame, rules: Set<Rule>): Double
+
+controller.Main -- model.CN2
+controller.Main -- model.Evaluator
+
+@enduml
