@@ -38,7 +38,6 @@ object Datasets {
 
         // print info about the sets
         info("First set of size: ${left.nrow} with probability distribution of: ${classDistribution(left)}")
-        val test = dataFrameOf(separatedDataset.fold(emptyList<DataFrameRow>()) { acc, tuple -> acc + tuple.second })
         info("Test set of size: ${right.nrow} with probability distribution of: ${classDistribution(right)}")
 
         return left to right

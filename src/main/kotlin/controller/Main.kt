@@ -21,7 +21,7 @@ const val DatasetDescription = "Path to the dataset to use for the training"
 const val ExportDescription = "Export the inferred rules to file ('${DefaultOutputFile}' by default)"
 const val OutputFileDescription = "Path to the file in which save the inferred rules"
 const val StarSetDescription = "Size of the set used to find the best complex. Default 15"
-const val ThresholdDescription = "Default 99" // TODO help
+const val ThresholdDescription = "Minimum level of significance to accept a complex. Default 99"
 const val VerboseDescription = "Level of verbosity during the training (0 is the max level of verbosity)"
 
 /**
@@ -38,6 +38,7 @@ private class Main : CliktCommand() {
     val threshold: Int by option("-t", "--threshold", help = ThresholdDescription).int().default(99)
     val verbosityLevel: Int by option("-v", "--verbose-level", help = VerboseDescription).int().default(1)
 
+    // run the program with the given parameters
     override fun run() {
         // set logger verbosity based on inputs
         Logger.verbosityLevel = verbosityLevel

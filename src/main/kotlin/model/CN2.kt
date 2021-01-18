@@ -22,7 +22,7 @@ object CN2 {
      * Tries to find rules for classify the dataset.
      * The output is in the form of a decision-list
      *
-     * @param threshold TODO
+     * @param threshold minimum value of significance required
      * @param starSetSize size of the star-set during search of the best complex
      * @param dataFrame set of examples to classify
      * @return set of rules that classify the given dataset
