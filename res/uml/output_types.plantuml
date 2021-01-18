@@ -1,0 +1,15 @@
+@startuml
+
+Rule        :    resultingClass: Any
+Selector    :    attribute: String
+Numerical   :    value: Double
+Numerical   :    operator: numerical.Operator
+Categorical :    value: String
+Categorical :    operator: categorical.Operator
+
+Rule        o-- "1" Complex
+Complex     o-- "*" Selector
+Selector    <|-- Numerical
+Selector    <|-- Categorical
+
+@enduml 
