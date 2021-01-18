@@ -1,7 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     kotlin("jvm") version "1.4.21"
+    application
+    id("com.github.johnrengelman.shadow") version "5.1.0"
 }
 
 group = "dev.mandrab"
@@ -21,10 +24,23 @@ dependencies {
     implementation("com.google.guava:guava:30.1-jre")
 }
 
+// Required by the 'shadowJar' task
+project.setProperty("mainClassName", "controller.MainKt")
+
+application {
+    mainClass.set("controller.MainKt")
+}
+
+tasks.withType<ShadowJar> {
+    manifest {
+        attributes["Main-Class"] = "controller.MainKt"
+    }
+}
+
 tasks.test {
     useJUnit()
 }
 
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
