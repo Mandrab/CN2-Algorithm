@@ -3,3 +3,5 @@
 build
 cn2.config.yml
 rules.dat
+res/report/*.pdf
+res/report/*.synctex.gz
