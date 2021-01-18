@@ -1,0 +1,85 @@
+@startuml
+
+left to right direction
+
+package "model" {
+
+    package "expression" {   
+        
+        package "selector" {
+
+            class                                   Selector
+            Selector                    :           attribute: String
+            Selector                    :           test(element: Any): Boolean
+            Selector                    :           coherent(selector: Selector): Boolean
+            
+            class                                   Selectors
+            Selectors                   :           findSelectors(dataset: DataFrame): Set<Selector>
+            Selectors                   :           simplify(selectors: Set<Selector>): Set<Selector>
+            
+            Selector                    --          Selectors
+        
+            package "categorical" {
+                class                               Categorical
+                Categorical             o-- "1"     model.expression.selector.categorical.Operator
+                Categorical             :           value: String
+                
+                class                               model.expression.selector.categorical.Operator
+                model.expression.selector.categorical.Operator : test(\n\tselector: Categorical,\n\tvalue: String\n): Boolean
+                
+                class                               Categoricals
+                Categoricals            :           simplify(\n\tselectors: List<Categorical>\n): List<Categorical>
+                
+                Selector                <|--        Categorical
+                Categorical             --          Categoricals
+            }
+            
+            package "numerical" {
+                class                               Numerical
+                Numerical               o-- "1"     model.expression.selector.numerical.Operator
+                Numerical               :           value: Double
+                
+                class                               model.expression.selector.numerical.Operator
+                model.expression.selector.numerical.Operator : test(\n\tselector: Numerical,\n\tvalue: Double\n): Boolean
+                
+                class                               Numericals
+                Numericals              :           simplify(\n\tselectors: List<Numerical>\n): List<Numerical>
+                
+                Selector                <|--        Numerical
+                Numerical               --          Numericals
+            }
+        }
+
+        package "complex" {
+            class                                   Complex
+            Complex                     o-- "*"     Selector
+            Complex                     :           cover(row: DataFrameRow): Boolean
+            Complex                     :           isNull(): Boolean
+            Complex                     :           simplify(): Complex
+            Complex                     :           specialize(selector: Selector): Complex            
+            
+            class                                   Complexes
+            Complexes                   :           evaluate(function: Distribution -> T, dataset: DataFrame, complex: Complex): Pair<Int, Double>
+            Complexes                   :           entropy(probability: Distribution): Double
+            Complexes                   :           significance(dataset: Distribution, covered: Distribution): Double
+            Complexes                   :           bestComplex(\n\tselectors: Set<Selector>,\n\tstarSetSize: Int,\n\tthreshold: Double,\n\tentropyFunction: Complex -> Pair<Int, Double>,\n\tsignificanceFunction: Complex -> Pair<Int, Double>\n): Complex
+            Complexes                   :           classDistribution(dataset: DataFrame): Map<Any, Double>
+            
+            Complex                     --          Complexes
+        }
+    }
+
+    class                                           Evaluator
+    Evaluator                           :           evaluateAccuracy(\n\tdata: DataFrame,\n\trules: Set<Rule>\n): Double
+    
+    class                                           CN2
+    CN2                                 :           run(\n\tthreshold: Int,\n\tstarSetSize: Int,\n\tdataFrame: DataFrame\n): Set<Rule>
+    
+    class                                           Rule
+    Rule                                o-- "1"     Complex
+    Rule                                :           resultingClass: Any
+    
+    CN2                                 --          Rule
+}
+
+@enduml
